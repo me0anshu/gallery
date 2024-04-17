@@ -46,7 +46,7 @@ function reset() {
             this.parentElement.children[0].children[0].children[0].setAttribute("class", "mx svgx")
 
 
-            srcx.src = "sng/" + this.parentElement.children[0].children[1].innerText
+            srcx.src =  this.parentElement.children[0].children[1].innerText
             if (voice) {
                 srcx.src = this.parentElement.children[0].children[1].innerText
                 voice = false;
