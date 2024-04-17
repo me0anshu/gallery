@@ -92,7 +92,7 @@ function addphoto(x, y) {
         newp.setAttribute("class", "big")
         newp.innerHTML = big.innerHTML;
         mainx.children[mainx.childElementCount - 1].children[1].appendChild(newp)
-        newp.children[0].children[1].src = "img/sa" + i + ".jpg"
+        newp.children[0].children[1].src = "sa" + i + ".jpg"
     }
 };
 creat();
