@@ -106,7 +106,10 @@ a {
     height: 100%;
     background-color: rgba(8, 8, 8, 0.668);
 }
-
+.canvas{
+    width:90vw;
+aspect-ratio:9/16;
+}
 .note {
     border-radius: 5px;
     padding: 10px 25px;
@@ -345,7 +348,7 @@ a {
     .noload {
         width: 60%;
     }
-
+.canvas{aspect-ratio:4/3;}
     .top,
     .outcamera {
         width: 60%;
