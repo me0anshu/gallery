@@ -1,3 +1,4 @@
+
 let loader = document.querySelector(".loader")
 setTimeout(
     () => {
@@ -9,7 +10,6 @@ setTimeout(
 //_____________________________________________________________________________________
 let voice = false;
 let id0, id1, id2, id3, id4, id5;
-function hlo() { console.log("hello") };
 function fortym(time) {
     let min = Math.floor(time / 60);
     let sec = Math.floor(time % 60);
@@ -30,9 +30,9 @@ function reset() {
     list.forEach(e => {
         e.addEventListener("click", bigx);
     })
-    function bigx(event) {
-        event.stopPropogation
+    async function bigx() {
         if (close) {
+
             this.style.display = "none"
             this.parentElement.setAttribute("class", "list listx")
             this.parentElement.children[0].setAttribute("class", "outx outxx")
@@ -45,35 +45,35 @@ function reset() {
             this.parentElement.children[0].children[1].setAttribute("class", "tetx tetxx")
             this.parentElement.children[0].children[0].children[0].setAttribute("class", "mx svgx")
 
-
-            srcx.src =  this.parentElement.children[0].children[1].innerText
+            await srcx.pause();
+            song = false;
             if (voice) {
                 srcx.src = this.parentElement.children[0].children[1].innerText
                 voice = false;
+            } else {
+                srcx.src = this.parentElement.children[0].children[1].innerText
             }
-            try {
-                srcx.load();
-                srcx.play()
-                    .then(() => {
-                        id = setInterval(() => {
-                            this.parentElement.children[2].children[1].max = srcx.duration;
-                            this.parentElement.children[2].children[1].value = srcx.currentTime;
-                            this.parentElement.children[2].children[0].innerText = fortym(srcx.currentTime)
+            await srcx.load();
+            await srcx.play();
+            if (!voice) {
+                this.parentElement.children[2].children[1].max = srcx.duration;
+                this.parentElement.children[2].children[2].innerText = fortym(srcx.duration)
+                id = setInterval(() => {
+                    this.parentElement.children[2].children[1].value = srcx.currentTime;
+                    this.parentElement.children[2].children[0].innerText = fortym(srcx.currentTime)
 
-                            if (srcx.currentTime == srcx.duration) {
-                                clearInterval(id);
-                                srcx.pause();
-                                song=false;
-                                this.parentElement.children[3].children[1].children[2].dispatchEvent(new Event("click"));
-
-                            }
-                        }, 1000)
-                        this.parentElement.children[2].children[2].innerText = fortym(srcx.duration)
-                    })
-            } catch (e) {
-                console.log("err")
+                    if (srcx.currentTime == srcx.duration) {
+                        clearInterval(id);
+                        this.parentElement.children[3].children[1].children[2].dispatchEvent(new Event("click"));
+                    }
+                }, 1000)
             }
             close = false;
+
+            document.querySelectorAll(".list").forEach(e => {
+                e.style.backgroundColor = ""
+            })
+            this.parentElement.style.backgroundColor = "rgb(180,180,180)"
         }
     }
     //_____________________________________________________play pause________________________________
@@ -125,14 +125,14 @@ function reset() {
 
     }
 
-    //___________________________________________________next previous_______________________________
+    //___________________________________________________next previous song_______________________________
     document.querySelectorAll(".bacx").forEach(e => {
         e.addEventListener("click", function () {
 
             if (this.parentElement.parentElement.parentElement.nextElementSibling) {
                 this.parentElement.parentElement.parentElement.children[5].dispatchEvent(new Event("click"));
                 this.parentElement.parentElement.parentElement.nextElementSibling.children[6].dispatchEvent(new Event("click"));
-            }
+            } else { clearInterval(id); }
         });
     });
 
@@ -141,7 +141,7 @@ function reset() {
             if (this.parentElement.parentElement.parentElement.previousElementSibling) {
                 this.parentElement.parentElement.parentElement.children[5].dispatchEvent(new Event("click"));
                 this.parentElement.parentElement.parentElement.previousElementSibling.children[6].dispatchEvent(new Event("click"));
-            }
+            } else { clearInterval(id); }
         });
     });
     //_____________________________________________________play speed_______________________________________________
@@ -151,7 +151,7 @@ function reset() {
 
             sp = sp + .25;
             srcx.playbackRate = sp;
-            console.log(sp)
+            alert("Song speed: " + sp)
             if (sp == "2") {
                 sp = .5;
             }
@@ -163,7 +163,6 @@ function reset() {
         ex.addEventListener("click", smallx);
     })
     function smallx(event) {
-        event.stopPropogation
         if (!close) {
             this.nextElementSibling.style = ""
             this.parentElement.setAttribute("class", "list")
@@ -179,9 +178,7 @@ function reset() {
             close = true;
 
             sp = .25;
-            srcx.pause();
             srcx.playbackRate = 1;
-            song = false;
             this.previousElementSibling.previousElementSibling.children[1].children[1].children[0].style.transform = ""
             this.previousElementSibling.previousElementSibling.children[1].children[1].children[1].style.transform = ""
             clearInterval(id);
@@ -196,9 +193,11 @@ document.querySelector("#addx",).addEventListener("change", function (e) {
     reset();
 })
 //_______________________________________________audio record____________________________________
+
 let stream;
 let mediaRecorder;
 let chunks = [];
+let no = [];
 let rec = false;
 
 let byx = document.querySelector(".byx");
@@ -217,9 +216,8 @@ let onmice = document.querySelector(".onmice")
 
 onmice.addEventListener("click", onmik);
 function onmik() {
-    byx.style.display="flex"
+    byx.style.display = "flex"
     sv.style.display = "flex"
-    x.style.display = "flex"
     trec.style.display = "flex"
     outmik.setAttribute("class", "outmik mikx")
     ptym.style.display = "flex"
@@ -236,9 +234,7 @@ byx.addEventListener("click", function () {
         startrec();
     }
 
-    byx.style.display=""
-    x.style.display = ""
-    x.style.opacity = ""
+    byx.style.display = ""
     sv.style.display = ""
     sv.style.opacity = ""
     sv.style.backgroundColor = ""
@@ -261,42 +257,40 @@ document.querySelector(".recx").addEventListener("click", startrec)
 async function startrec() {
     if (!rec) {
         try {
-            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            srcx.pause();
+            song = false;
+
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true })
             mediaRecorder = new MediaRecorder(stream);
 
-            mediaRecorder.ondataavailable = (event) => {
-                chunks.push(event.data);
+
+            mediaRecorder.ondataavailable = (e) => {
+                chunks.push(e.data);
             };
 
             mediaRecorder.onstop = () => {
                 const blob = new Blob(chunks, { type: 'audio/wav' });
                 const audioURL = URL.createObjectURL(blob);
-                x.src = audioURL;
-                x.load();
 
-                voice = true
-                if (voice) {
-                    sv.style.cursor = "pointer"
-                    sv.innerText = "Save Voice"
-                    sv.style.opacity = "1"
-                    x.style.opacity = "1"
-                    sv.addEventListener("click", svx)
-                    function svx() {
-                        ads(audioURL);
-                        reset();
-                        x.style.opacity = "0"
-                        x.pause();
-                        x.disabled = true;
-                        sv.style.backgroundColor = "rgb(179, 179, 179)";
-                        sv.innerText = "Voice Saved";
-                        sv.style.cursor = "no-drop"
-                        sv.removeEventListener("click", svx)
-                    }
+
+                sv.style.cursor = "pointer"
+                sv.innerText = "Save Voice"
+                sv.style.opacity = "1"
+                sv.addEventListener("click", svx)
+
+                function svx() {
+                    sv.style.backgroundColor = "rgb(179, 179, 179)";
+                    sv.innerText = "Voice Saved";
+                    sv.style.cursor = "no-drop"
+                    sv.removeEventListener("click", svx)
+                    voice = true
+                    ads(audioURL);
+                    reset();
                 }
+
 
             };
             mediaRecorder.start();
-
 
             let m = 1;
             let loop = false;
@@ -325,11 +319,10 @@ async function startrec() {
                 }
             }, 1500);
             rec = true
-
-        } catch (error) {
-            console.error('Error starting recording: ', error);
-        }
+        } catch { trec.innerText = "Opps, you blocked audio"; trec.style.color = "red" }
     } else {
+        srcx.play();
+        song = true;
         mediaRecorder.stop();
         stream.getTracks().forEach(track => track.stop());
 
@@ -339,8 +332,8 @@ async function startrec() {
         bigc.style.width = ""
         cir.style.width = ""
         recxx.style.width = ""
-        trec.innerText = "Your Voice is ready to play or save";
-        trec.style.color = "black"
+        trec.innerText = "Recording complete.";
+        trec.style.color = "green"
         clearInterval(id0);
         clearInterval(id1);
         clearInterval(id2);
@@ -349,6 +342,7 @@ async function startrec() {
 
     }
 }
+
 
 
 //_______________________________________making false song____________________________________
@@ -361,9 +355,9 @@ function ads(xy) {
     newp.setAttribute("class", "list")
     newp.innerHTML = listx.innerHTML;
     photo.appendChild(newp)
-    newp.style.backgroundColor = "rgba(0, 66, 66, 0.3)"
+    newp.style.backgroundColor = "rgba(150,150,150)"
     setTimeout(() => { newp.style.backgroundColor = "" }, 1000)
-    newp.children[0].children[1].innerText = xy
+    newp.children[0].children[1].innerText = xy;
 
 }
 ads("Uska_Hi_Banana__1920_Evil_Returns_Full_Video_Song_HD__Arijit_Singh.mp3")
